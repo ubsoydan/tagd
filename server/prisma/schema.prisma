@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+
+  username String @unique
+  email    String @unique
+  password String
+
+  firstName String
+  lastName  String
+
+  userBio            String?
+  totalProfileViews  Int     @default(0)
+  totalAllListsViews Int     @default(0)
+  totalAllListsLikes Int     @default(0)
+
+  profilePicPath    String?
+  backgroundPicPath String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listsLikedByUser   ListsLikedByUser[]
+  listsCreatedByUser List[]
+}
+
+model List {
+  id String @id @default(uuid())
+
+  listName        String
+  listDescription String
+  listUrl         String
+
+  bookmarks Bookmark[]
+
+  listPath String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  likes ListsLikedByUser[]
+
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  tags TagsOnLists[]
+}
+
+model ListsLikedByUser {
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  list   List   @relation(fields: [listId], references: [id])
+  listId String
+
+  @@id([userId, listId])
+}
+
+model Bookmark {
+  id String @id @default(uuid())
+
+  bookmarkTitle String
+  bookmarkUrl   String
+
+  list   List   @relation(fields: [listId], references: [id])
+  listId String
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  tags TagsOnBookmarks[]
+}
+
+model Tag {
+  id              String            @id @default(uuid())
+  tagName         String
+  bookmarksWithThisTag TagsOnBookmarks[]
+  listsWithThisTag     TagsOnLists[]
+}
+
+model TagsOnBookmarks {
+  tag   Tag    @relation(fields: [tagId], references: [id])
+  tagId String
+
+  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id])
+  bookmarkId String
+
+  @@id([tagId, bookmarkId])
+}
+
+model TagsOnLists {
+  tag   Tag    @relation(fields: [tagId], references: [id])
+  tagId String
+
+  list   List   @relation(fields: [listId], references: [id])
+  listId String
+
+  @@id([tagId, listId])
+}
