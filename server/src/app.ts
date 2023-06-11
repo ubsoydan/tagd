@@ -3,6 +3,9 @@ import "dotenv/config"; // automatically imports and invokes dotenv/config
 import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
 import usersRoutes from "./routes/users.route";
+import listsRoutes from "./routes/lists.route";
+import bookmarkRoutes from "./routes/bookmarks.route";
+// import tagsRoutes from "./routes/tags.route";
 import createHttpError, { isHttpError } from "http-errors";
 
 const app = express();
@@ -11,13 +14,19 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 
-app.use("/api/users", usersRoutes);
+/* ROUTES */
+app.use("/api/v1/users", usersRoutes);
+app.use("/api/v1/lists", listsRoutes);
+app.use("/api/v1/bookmarks", bookmarkRoutes);
+// app.use("/api/v1/tags", tagsRoutes);
 
+/* ERROR HANDLER FOR NON-EXISTENT ENDPOINTS */
 app.use((req, res, next) => {
     next(createHttpError(404, "Endpoint not found!"));
 });
 
-/** ERROR HANDLER, 'error:unknown' is specified for TypeScript  */
+/* ERROR HANDLER */
+//'error:unknown' is specified for TypeScript
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
     console.error(error);
