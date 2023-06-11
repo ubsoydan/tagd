@@ -54,6 +54,8 @@ model List {
   userId      String
   user        User          @relation(fields: [userId], references: [id])
   tags TagsOnLists[]
+
+  @@unique([id, userId])
 }
 
 model ListsLikedByUser {
@@ -78,6 +80,8 @@ model Bookmark {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   tags TagsOnBookmarks[]
+
+  @@unique([id, listId])
 }
 
 model Tag {
