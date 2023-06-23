@@ -2,6 +2,8 @@ import "module-alias/register";
 import "dotenv/config"; // automatically imports and invokes dotenv/config
 import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
+import cors from "cors";
+import helmet from "helmet";
 import authRoutes from "./routes/auth.route";
 import usersRoutes from "./routes/users.route";
 import listsRoutes from "./routes/lists.route";
@@ -15,9 +17,13 @@ import { db } from "../prisma/client";
 
 const app = express();
 
+app.use(express.json());
+app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+
 app.use(morgan("dev"));
 
-app.use(express.json());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use(
     session({
@@ -26,6 +32,7 @@ app.use(
         saveUninitialized: false,
         cookie: {
             maxAge: 60 * 60 * 1000,
+            sameSite: "none",
         },
         rolling: true,
         store: new PrismaSessionStore(db, {
