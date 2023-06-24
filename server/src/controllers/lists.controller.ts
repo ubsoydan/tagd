@@ -2,6 +2,24 @@ import { RequestHandler } from "express";
 import { db } from "../../prisma/client";
 import createHttpError from "http-errors";
 
+export const getAllLists: RequestHandler<
+    unknown,
+    unknown,
+    unknown,
+    unknown
+> = async (req, res, next) => {
+    try {
+        const lists = await db.list.findMany();
+
+        if (!lists) {
+            throw createHttpError(404, "Aint seein any list bossmang");
+        }
+        res.status(200).json(lists);
+    } catch (error) {
+        next(error);
+    }
+};
+
 interface GetAllUserListsParams {
     userId: string;
 }
