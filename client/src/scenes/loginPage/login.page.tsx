@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import cn from "@/src/utils/cn";
 import { buttonVariants } from "@/src/components/ui/button";
 import { Command as IconLogo, ChevronLeft as IconLeft } from "lucide-react";
-// import AuthForm from "@/src/scenes/loginPage/components/auth-form";
+import RegisterAuthForm from "@/src/scenes/loginPage/components/login-form";
 
 export default function LoginPage() {
     return (
@@ -29,7 +29,7 @@ export default function LoginPage() {
                         Enter your email to sign in to your account
                     </p>
                 </div>
-                {/* <AuthForm /> */}
+                <RegisterAuthForm />
                 <p className="px-8 text-center text-sm text-muted-foreground">
                     <Link
                         to="/register"

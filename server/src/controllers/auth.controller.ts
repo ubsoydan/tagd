@@ -29,8 +29,6 @@ interface SignupBody {
     username: string;
     email: string;
     password: string;
-    firstName: string;
-    lastName: string;
 }
 
 export const signup: RequestHandler<
@@ -39,16 +37,10 @@ export const signup: RequestHandler<
     SignupBody,
     unknown
 > = async (req, res, next) => {
-    const {
-        username,
-        email,
-        password: rawPassword,
-        firstName,
-        lastName,
-    } = req.body;
+    const { username, email, password: rawPassword } = req.body;
 
     try {
-        if (!username || !email || !rawPassword || !firstName || !lastName) {
+        if (!username || !email || !rawPassword) {
             throw createHttpError(400, "One or multiple parameters missing!");
         }
 
@@ -83,8 +75,6 @@ export const signup: RequestHandler<
                 username,
                 email,
                 password: hashedPassword,
-                firstName,
-                lastName,
             },
         });
 
