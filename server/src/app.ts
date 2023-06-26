@@ -2,6 +2,8 @@ import "module-alias/register";
 import "dotenv/config"; // automatically imports and invokes dotenv/config
 import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
+import cors from "cors";
+import helmet from "helmet";
 import authRoutes from "./routes/auth.route";
 import usersRoutes from "./routes/users.route";
 import listsRoutes from "./routes/lists.route";
@@ -13,11 +15,20 @@ import env from "./utils/validateEnv";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { db } from "../prisma/client";
 
+declare module "express-session" {
+    interface SessionData {
+        user: string;
+    }
+}
 const app = express();
+
+app.use(express.json());
+app.use(helmet());
+app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 
 app.use(morgan("dev"));
 
-app.use(express.json());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use(
     session({
@@ -35,6 +46,18 @@ app.use(
         }),
     })
 );
+// function isAuth(req: Request, res: Response, next: NextFunction) {
+//     if (req.session.user) {
+//         console.log("kullanici BULUNDU!");
+//         next();
+//     } else {
+//         console.log("AAAAAWWWWWW");
+//     }
+// }
+
+// app.get("/", isAuth, function (req: Request, res: Response) {
+//     res.send(`hosgeldin ${req.session.user}`);
+// });
 
 /* ROUTES */
 app.use("/api/v1/auth", authRoutes);

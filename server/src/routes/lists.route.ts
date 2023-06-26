@@ -6,6 +6,8 @@ const router = express.Router();
 /***** LIST ROUTES *****/
 
 /* READ */
+router.get("/", ListsController.getAllLists);
+
 router.get("/:userId", ListsController.getAllUserLists);
 
 router.get("/:userId/:listId", ListsController.getUserList);

@@ -1,11 +1,10 @@
 import { RequestHandler } from "express";
-import { SessionDataCustom } from "../../@types/session";
 import createHttpError from "http-errors";
 import { db } from "../../prisma/client";
 import bcrypt from "bcrypt";
 
 export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
-    const authenticatedUserID = (req.session as SessionDataCustom).userID;
+    const authenticatedUserID = req.session.userID;
 
     try {
         if (!authenticatedUserID) {
@@ -18,8 +17,8 @@ export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
             },
             select: { username: true },
         });
-
-        res.status(200).json(user);
+        console.log(user?.username);
+        res.status(200).json(user?.username);
     } catch (error) {
         next(error);
     }
@@ -29,8 +28,6 @@ interface SignupBody {
     username: string;
     email: string;
     password: string;
-    firstName: string;
-    lastName: string;
 }
 
 export const signup: RequestHandler<
@@ -39,16 +36,10 @@ export const signup: RequestHandler<
     SignupBody,
     unknown
 > = async (req, res, next) => {
-    const {
-        username,
-        email,
-        password: rawPassword,
-        firstName,
-        lastName,
-    } = req.body;
+    const { username, email, password: rawPassword } = req.body;
 
     try {
-        if (!username || !email || !rawPassword || !firstName || !lastName) {
+        if (!username || !email || !rawPassword) {
             throw createHttpError(400, "One or multiple parameters missing!");
         }
 
@@ -83,12 +74,10 @@ export const signup: RequestHandler<
                 username,
                 email,
                 password: hashedPassword,
-                firstName,
-                lastName,
             },
         });
 
-        (req.session as SessionDataCustom).userID = newUser.id;
+        req.session.userID = newUser.id;
 
         res.status(201).json(newUser);
     } catch (error) {
@@ -129,8 +118,16 @@ export const login: RequestHandler<
             throw createHttpError(401, "Invalid credentials!");
         }
 
-        (req.session as SessionDataCustom).userID = user.id;
-        res.status(201).json(user);
+        // req.session.regenerate(function (err) {
+        //     if (err) next(err);
+        // });
+
+        req.session.userID = user.id;
+
+        req.session.save(function (err) {
+            if (err) return next(err);
+            res.status(201).json(user);
+        });
     } catch (error) {
         next(error);
     }
