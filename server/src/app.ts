@@ -15,6 +15,11 @@ import env from "./utils/validateEnv";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { db } from "../prisma/client";
 
+declare module "express-session" {
+    interface SessionData {
+        user: string;
+    }
+}
 const app = express();
 
 app.use(express.json());
@@ -41,6 +46,18 @@ app.use(
         }),
     })
 );
+// function isAuth(req: Request, res: Response, next: NextFunction) {
+//     if (req.session.user) {
+//         console.log("kullanici BULUNDU!");
+//         next();
+//     } else {
+//         console.log("AAAAAWWWWWW");
+//     }
+// }
+
+// app.get("/", isAuth, function (req: Request, res: Response) {
+//     res.send(`hosgeldin ${req.session.user}`);
+// });
 
 /* ROUTES */
 app.use("/api/v1/auth", authRoutes);
