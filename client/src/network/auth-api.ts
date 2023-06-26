@@ -50,6 +50,10 @@ export async function logOut() {
  */
 
 export async function getCurrentUser() {
-    const res = await fetchWithError("/api/v1/auth", { method: "GET" });
-    return res.json();
+    const res = await fetchWithError("/api/v1/auth", {
+        method: "GET",
+        credentials: "include",
+    });
+    const data = await res.json();
+    return data;
 }

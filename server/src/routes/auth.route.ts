@@ -7,7 +7,11 @@ router.get("/", AuthController.getAuthenticatedUser);
 
 router.post("/signup", AuthController.signup);
 
-router.post("/login", AuthController.login);
+router.post(
+    "/login",
+    express.urlencoded({ extended: false }),
+    AuthController.login
+);
 
 router.post("/logout", AuthController.logout);
 

@@ -1,11 +1,10 @@
 import { RequestHandler } from "express";
-import { SessionDataCustom } from "../../@types/session";
 import createHttpError from "http-errors";
 import { db } from "../../prisma/client";
 import bcrypt from "bcrypt";
 
 export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
-    const authenticatedUserID = (req.session as SessionDataCustom).userID;
+    const authenticatedUserID = req.session.userID;
 
     try {
         if (!authenticatedUserID) {
@@ -18,8 +17,8 @@ export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
             },
             select: { username: true },
         });
-
-        res.status(200).json(user);
+        console.log(user?.username);
+        res.status(200).json(user?.username);
     } catch (error) {
         next(error);
     }
@@ -78,7 +77,7 @@ export const signup: RequestHandler<
             },
         });
 
-        (req.session as SessionDataCustom).userID = newUser.id;
+        req.session.userID = newUser.id;
 
         res.status(201).json(newUser);
     } catch (error) {
@@ -119,8 +118,16 @@ export const login: RequestHandler<
             throw createHttpError(401, "Invalid credentials!");
         }
 
-        (req.session as SessionDataCustom).userID = user.id;
-        res.status(201).json(user);
+        // req.session.regenerate(function (err) {
+        //     if (err) next(err);
+        // });
+
+        req.session.userID = user.id;
+
+        req.session.save(function (err) {
+            if (err) return next(err);
+            res.status(201).json(user);
+        });
     } catch (error) {
         next(error);
     }
